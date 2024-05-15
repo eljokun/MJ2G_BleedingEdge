@@ -1,3 +1,5 @@
+import logging
+
 from PySide6.QtCore import Qt, QMimeData, QByteArray, Signal
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QMessageBox, QLabel, QPushButton, QWidget, QApplication, QMainWindow, QTextEdit, QVBoxLayout, \
@@ -16,7 +18,7 @@ except Exception as err:
     win32comsupport = False
     print(f'Win32com not supported: {err} \nWordHook disabled.')
 
-ver = " Bleeding Edge 1.3.2"
+ver = " Bleeding Edge 1.3.3"
 
 class DraggableWidget(QWidget):
     def __init__(self, parent=None):
@@ -80,6 +82,7 @@ class MainWindow(QMainWindow):
         self.replaceFlag = False
         self.copy_svg_thread_safe_signal.connect(self.copySvg)
         self.thread_safe_svg_paste_signal.connect(self.experimentalSvgFileInsertion)
+        self.DoneMarker = False
 
         # Create layout
         self.layout = QVBoxLayout()
@@ -451,6 +454,7 @@ class MainWindow(QMainWindow):
                 word = win32.gencache.EnsureDispatch('Word.Application')
                 try:
                     word.ActiveDocument.InlineShapes.AddPicture(temp_file_path)
+                    time.sleep(1)
                 except Exception as e:
                     print(f'Error inserting SVG file: {e}')
             os.unlink(temp_file_path)
@@ -681,39 +685,51 @@ class MainWindow(QMainWindow):
                 print(f'Error reading word content: {e}')
                 self.stop_word_hook()
                 return
-            matches = re.findall(r'\$\$(.*?)\$\$', word_content, re.DOTALL)
-            if matches:
-                if self.doneWidgetAutoShow:
-                    self.doneWidgetAutoShowSignal.emit(True)
-                if r"\done" in matches[0]:
-                    self.replaceFlag = True
-                    matches[0] = matches[0].replace(r"\done", "")
-                    self.update_equation_edit_signal.emit(matches[0])
-                if self.replaceFlag:
-                    if not matches[0]:
-                        continue
-                    self.copy_svg_thread_safe_signal.emit("1")
-                    time.sleep(0.1)
-                    start_pos = word_content.find('$$')
-                    end_pos = word_content.find('$$', start_pos + 3)
-                    if start_pos != -1 and end_pos != -1:
-                        wordDoc.Range(start_pos, end_pos + 3).Select()
-                        word.Selection.Delete()
-                    time.sleep(0.2)
-                    self.thread_safe_svg_paste_signal.emit("1")
-                    self.update_equation_edit_signal.emit("")
-                    self.replaceFlag = False
-                    matches.clear()
-                    time.sleep(0.1)
-                else:
-                    if self.doneWidgetAutoShow:
-                        self.update_equation_edit_signal.emit(matches[0])
-                matches.clear()
-            else:
+            matches = []
+            matches = re.findall(r'\$\$.*?\$\$', word_content, re.DOTALL)
+            if len(matches) == 0:
                 if self.doneWidgetAutoShow:
                     self.doneWidgetAutoShowSignal.emit(False)
+                continue
+            if self.doneWidgetAutoShow:
+                self.doneWidgetAutoShowSignal.emit(True)
+            self.update_equation_edit_signal.emit(matches[0].replace('$$', ''))
+            if '\\done' in matches[0]:
+                self.replaceFlag = True
+                self.DoneMarker = True
+                rangeFindDoneReplace = wordDoc.Range().Find
+                rangeFindDoneReplace.ClearFormatting()
+                rangeFindDoneReplace.Text = r'\done'
+                rangeFindDoneReplace.Replacement.Text = ''
+                rangeFindDoneReplace.Execute()
+            if self.replaceFlag:
+                self.replaceFlag = False
+                match = matches[0].replace('$$', '')
+                if self.DoneMarker:
+                    match = match.replace('\\done', '')
+                    self.DoneMarker = False
+                self.update_equation_edit_signal.emit(match)
+                rangeFind = wordDoc.Range()
+                rangeFind.Find.ClearFormatting()
+                rangeFind.Find.Text = '$$'
+                found = rangeFind.Find.Execute()
+                if found:
+                    firstStartPos = rangeFind.Start
+                    firstEndPos = rangeFind.End
+                rangeFind = wordDoc.Range(firstEndPos, wordDoc.Range().End)
+                rangeFind.Find.ClearFormatting()
+                rangeFind.Find.Text = '$$'
+                found = rangeFind.Find.Execute()
+                if found:
+                    secondStartPos = rangeFind.Start
+                    secondEndPos = rangeFind.End
+                rangeToDelete = wordDoc.Range(firstStartPos, secondEndPos)
+                rangeToDelete.Delete()
+                self.thread_safe_svg_paste_signal.emit("1")
+                self.update_equation_edit_signal.emit('')
             # Refresh rate for word doc content polling here change this if ur lagging
-            time.sleep(1 / 20)
+            matches.clear()
+            time.sleep(1 / 60)
         pythoncom.CoUninitialize()
     def stop_word_hook(self):
         self.wordHookStatus = False

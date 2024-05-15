@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='MJ2G_BLEEDINGEDGE',
-    version='1.3.2',
+    version='1.3.3',
     packages=[''],
     url='github.com/eljokun',
     license='AGPL-3.0',
