@@ -2,6 +2,12 @@
 An upgraded version of MathJax-To-Go, STRICTLY FOR WINDOWS, still in development and highly untested, implementing WordHook: An experimental framework that uses the MJ2G code base to create what the Microsoft Word equation editor should have been.
 I hope this helps any of you, especially academics.
 
+[!WARNING]
+MJ2G_BleedingEdge is highly untested on major platforms, it is stable as of 15/05/2024 running windows 11 23H2, Python 3.12 with MS Office 2021. Updates to any of these may break the program, and stability is in no way guaranteed, in fact nothing is.
+
+[!CAUTION]
+MJ2G_BleedingEdge is strictly **WINDOWS-ONLY**. Support should not be expected, at all, for any other OS-es, windows emulators, older versions of windows 11 or anything of the sort.
+
 # Conditions
 There are no conditions really, but please consider crediting me in any works this helps you in, if you would like that, or buying me a coffee on ko-fi :) Enjoy!
 
