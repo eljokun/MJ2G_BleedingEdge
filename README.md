@@ -8,6 +8,13 @@ I hope this helps any of you, especially academics.
 >[!CAUTION]
 >MJ2G_BleedingEdge is strictly **WINDOWS-ONLY**. Support should not be expected, at all, for any other OS-es, windows emulators, older versions of windows 11 or anything of the sort.
 
+>[!CAUTION]
+>Due to the way these interactions work, please make sure that pictures/graphs inserted in text are added in line with text by default. Changing them to anything else will make >the object insert on the top corner of the page. This is unfixable and you have been warned.
+
+
+>[!CAUTION]
+>There are limitations regarding use of this project, the most notable of which is, due to the nature of the COM interactions, if you exit the active document, such as choosing a >location to save a file or going into the main menu, anything counting as not having an active document, you will crash. I'm trying to find a workaround for it, but for your regular use, it should mostly be fine.
+
 # Conditions
 There are no conditions really, but please consider crediting me in any works this helps you in, if you would like that, or buying me a coffee on ko-fi :) Enjoy!
 
