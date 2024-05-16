@@ -6,7 +6,7 @@ I hope this helps any of you, especially academics.
 >MJ2G_BleedingEdge is highly untested on major platforms, it is stable as of 15/05/2024 running windows 11 23H2, Python 3.12 with MS Office 2021. Updates to any of these may break the program, and stability is in no way guaranteed, in fact nothing is.
 
 >[!CAUTION]
->MJ2G_BleedingEdge is strictly **WINDOWS-ONLY**. Support should not be expected, at all, for any other OS-es, windows emulators, older versions of windows 11 or anything of the sort.
+>MJ2G_BleedingEdge is strictly **WINDOWS-ONLY**. Support should not be expected, at all, for any other OS-es, windows emulators, older versions of windows(pre-10), older versions of office(<2021) or anything of the sort.
 
 >[!CAUTION]
 >Due to the way these interactions work, please make sure that pictures/graphs inserted in text are added in line with text by default. Changing them to anything else will make the object insert on the top corner of the page. This is unfixable and you have been warned.
