@@ -18,7 +18,7 @@ except Exception as err:
     win32comsupport = False
     print(f'Win32com not supported: {err} \nWordHook disabled.')
 
-ver = " Bleeding Edge 1.3.3"
+ver = " Bleeding Edge 1.3.4"
 
 class DraggableWidget(QWidget):
     def __init__(self, parent=None):
@@ -436,7 +436,7 @@ class MainWindow(QMainWindow):
             self.view.page().toHtml(callback)
     def extractSvgFromHTML(self, html):
         start = html.find('<svg')
-        end = html.find('</svg>', start)
+        end = html.rfind('</svg>')
         self.svgData = html[start:end + 6].replace('currentColor', 'black')
 
     def experimentalSvgFileInsertion(self):
@@ -477,7 +477,6 @@ class MainWindow(QMainWindow):
                     mimedata.setData('image/svg+xml', QByteArray(f.read().encode()))
                     self.clipboard.setMimeData(mimedata)
                 threading.Timer(1, os.remove, args=[temp_file_path]).start()
-                print(f'Copied SVG data: {self.clipboard.text()}')
             except Exception as e:
                 print(f'Error copying SVG data: {e}')
 
@@ -686,15 +685,15 @@ class MainWindow(QMainWindow):
                 self.stop_word_hook()
                 return
             matches = []
-            matches = re.findall(r'\$\$.*?\$\$', word_content, re.DOTALL)
+            matches = re.findall(r'\$\$(.*?)(?<!\\)\$\$', word_content, re.DOTALL)
             if len(matches) == 0:
                 if self.doneWidgetAutoShow:
                     self.doneWidgetAutoShowSignal.emit(False)
                 continue
             if self.doneWidgetAutoShow:
                 self.doneWidgetAutoShowSignal.emit(True)
-            self.update_equation_edit_signal.emit(matches[0].replace('$$', ''))
-            if '\\done' in matches[0]:
+            self.update_equation_edit_signal.emit(fr"{matches[0].replace('$$', '')}")
+            if r'\done' in matches[0]:
                 self.replaceFlag = True
                 self.DoneMarker = True
                 rangeFindDoneReplace = wordDoc.Range().Find
@@ -704,11 +703,11 @@ class MainWindow(QMainWindow):
                 rangeFindDoneReplace.Execute()
             if self.replaceFlag:
                 self.replaceFlag = False
-                match = matches[0].replace('$$', '')
+                match = fr"{matches[0].replace('$$', '')}"
                 if self.DoneMarker:
-                    match = match.replace('\\done', '')
+                    match = match.replace(r'\done', '')
                     self.DoneMarker = False
-                self.update_equation_edit_signal.emit(match)
+                self.update_equation_edit_signal.emit(fr'{match}')
                 rangeFind = wordDoc.Range()
                 rangeFind.Find.ClearFormatting()
                 rangeFind.Find.Text = '$$'
@@ -729,7 +728,7 @@ class MainWindow(QMainWindow):
                 self.update_equation_edit_signal.emit('')
             # Refresh rate for word doc content polling here change this if ur lagging
             matches.clear()
-            time.sleep(1 / 60)
+            time.sleep(1 / 15)
         pythoncom.CoUninitialize()
     def stop_word_hook(self):
         self.wordHookStatus = False
