@@ -1,5 +1,3 @@
-import logging
-
 from PySide6.QtCore import Qt, QMimeData, QByteArray, Signal
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QMessageBox, QLabel, QPushButton, QWidget, QApplication, QMainWindow, QTextEdit, QVBoxLayout, \
@@ -689,6 +687,7 @@ class MainWindow(QMainWindow):
             if len(matches) == 0:
                 if self.doneWidgetAutoShow:
                     self.doneWidgetAutoShowSignal.emit(False)
+                    time.sleep(1/3)
                 continue
             if self.doneWidgetAutoShow:
                 self.doneWidgetAutoShowSignal.emit(True)
